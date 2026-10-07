@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esports OBS Overlay - Firebase Realtime Sync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,700;0,900;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/webp" href="PG/LOGO-S1.webp">
+    
+    <!-- CSS Link -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <!-- PREVIEW AREA (ฝั่งซ้าย - หน้าแสดงตัวอย่าง) -->
+    <div id="preview-wrapper">
+        <div id="overlay-container">
+            <!-- SCREEN 1: SQUARE 3x4 TEAMS GRID -->
+            <div id="teams-screen" class="view-screen active">
+                <div class="group-header-banner" id="displayGroupName">-</div>
+                <div class="teams-grid-3x4" id="displayTeamsGrid"></div>
+            </div>
+
+            <!-- SCREEN 2+: DYNAMIC MAP SCREENS -->
+            <div id="dynamic-map-screens" style="width:100%; height:100%; position:relative;"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN CONTROL PANEL (ฝั่งขวา - คอนโซลควบคุม) -->
+    <div id="admin-panel">
+        <div class="panel-header">
+            <h2>⚙ CONTROL PANEL</h2>
+            <span id="syncStatus" class="status-badge sync-connecting">CONNECTING...</span>
+        </div>
+
+        <div class="panel-section">
+            <h3>ควบ OBS & สลับหน้า</h3>
+            <button class="btn" onclick="copyObsLink()">📋 คัดลอกลิงก์ OBS Source (?view=obs)</button>
+            <button class="btn btn-sec" style="margin-top:6px;" onclick="openObsPreview()">👁 ดูตัวอย่างหน้าจอ OBS</button>
+
+            <label style="margin-top:10px;">เลือกธีมสีหลัก</label>
+            <select id="themeSelect" onchange="changeTheme(this.value)">
+                <option value="orange">🍊 ส้มล้วน (Orange)</option>
+                <option value="darkblue">🔷 น้ำเงินเข้ม (Dark Blue)</option>
+                <option value="pink">💗 ชมพู (Pink)</option>
+                <option value="darkgreen">🌲 เขียวเข้ม (Dark green)</option>
+                <option value="navy-blue">⚓ กรมท่า (Navy Blue)</option>
+                <option value="Red">🔴 แดง (Red)</option>
+            </select>
+            
+            <label style="margin-top:8px;">ระยะเวลาแสดงแต่ละหน้า (วินาที)</label>
+            <input type="number" id="delayInput" value="5" min="2" max="60" onchange="updateState()">
+            
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:8px;">
+                <input type="checkbox" id="autoSwitchCheck" checked onchange="updateState()" style="width:auto;"> เปิดระบบสลับหน้าจออัตโนมัติ
+            </label>
+        </div>
+
+        <!-- GROUP MANAGEMENT -->
+        <div class="panel-section">
+            <h3>จัดการกลุ่มทีม (Group)</h3>
+            <label>กลุ่มที่กำลังใช้งาน</label>
+            <select id="groupSelect" onchange="switchGroup(this.value)"></select>
+
+            <div style="display:flex; gap:6px; margin-top:6px;">
+                <input type="text" id="newGroupName" placeholder="ชื่อกลุ่ม เช่น GROUP A">
+                <button class="btn" style="width:110px; margin-top:0;" onclick="createGroup()">+ เพิ่มกลุ่ม</button>
+            </div>
+            <button class="btn btn-danger" style="width:100%; margin-top:6px;" onclick="deleteCurrentGroup()">ลบกลุ่มปัจจุบัน</button>
+        </div>
+
+        <!-- TEAM MANAGEMENT -->
+        <div id="teamSection" class="panel-section" style="display:none;">
+            <h3>
+                <span>เพิ่มทีมเข้ากลุ่ม (สูงสุด 12 ทีม)</span>
+                <span id="teamCountBadge" style="color:var(--theme-primary);">0/12</span>
+            </h3>
+            <label>ชื่อทีม *</label>
+            <input type="text" id="teamNameInput" placeholder="พิมพ์ชื่อทีมที่นี่...">
+            <label>รูปโลโก้ทีม</label>
+            <input type="file" id="teamLogoFileInput" accept="image/*">
+            <button class="btn" style="margin-top:8px;" onclick="addTeam()">+ บันทึกเพิ่มทีม</button>
+
+            <div id="teamsListAdmin" style="margin-top:10px; max-height:130px; overflow-y:auto;"></div>
+        </div>
+
+        <!-- MAP MANAGEMENT -->
+        <div id="mapSection" class="panel-section" style="display:none;">
+            <h3>จัดการแมพ (เลือก รอบ / สถานะ)</h3>
+            <button class="btn" style="margin-bottom:8px;" onclick="addMatchSlot()">+ เพิ่มแมทช์ใหม่</button>
+            <div id="mapSettingsContainer"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript Link -->
+    <script src="js/script.js"></script>
+</body>
+</html>
