@@ -1,624 +1,665 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyCAeaYsd_kXbiAvngdmTEOInHZ7ly0P4Dc",
-  authDomain: "randommapfreefire.firebaseapp.com",
-  databaseURL: "https://randommapfreefire-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "randommapfreefire",
-  storageBucket: "randommapfreefire.firebasestorage.app",
-  messagingSenderId: "870888805581",
-  appId: "1:870888805581:web:813202564d9fd2c3dcc584",
-  measurementId: "G-PS2H8CFE14"
+  apiKey: "AIzaSyCtpuArW_VhP4Q-UNlMJ-6M8lot19gi8k8",
+  authDomain: "kimoo-dfbef.firebaseapp.com",
+  databaseURL: "https://kimoo-dfbef-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kimoo-dfbef",
+  storageBucket: "kimoo-dfbef.firebasestorage.app",
+  messagingSenderId: "864165516996",
+  appId: "1:864165516996:web:33cb20b8670d2e38335b91",
+  measurementId: "G-DZEM9T87ZD"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const stateRef = db.ref('esports_overlay/state');
-
-
-const BOOYAH_IMG_SRC = "PG/BOOYAH_ICON.png";
-const DEFAULT_LOGO = 'https://cdn-icons-png.flaticon.com/512/824/824722.png';
-const STORAGE_KEY = 'esports_obs_orange_v25_saved';
-
-const THEME_PRESETS = {
-    'orange': {
-        name: 'ส้ม (Orange)',
-        primary: '#ff6d00',
-        secondary: '#ff6d00',
-        headerBg: '#ff6d00',
-        frameBg: '#ff6d00',
-        barBg: '#ff6d00',
-        glow: 'rgba(255, 109, 0, 0.3)',
-        overlayShadow: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(255, 109, 0, 0.4) 60%, transparent 100%)'
-    },
-    'darkblue': {
-        name: 'น้ำเงิน (Blue)',
-        primary: '#4a2aff',
-        secondary: '#4a2aff',
-        headerBg: '#4a2aff',
-        frameBg: '#4a2aff',
-        barBg: '#4a2aff',
-        glow: 'rgba(46, 42, 255, 0.3)',
-        overlayShadow: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(46, 42, 255, 0.3) 60%, transparent 100%)'
-    },
-    'pink': {
-        name: 'ชมพู (Pink)',
-        primary: '#ff64db',
-        secondary: '#ff64db',
-        headerBg: '#ff64db',
-        frameBg: '#ff64db',
-        barBg: '#ff64db',
-        glow: 'rgba(245, 0, 200, 0.3)',
-        overlayShadow: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(245, 0, 200, 0.3) 60%, transparent 100%)'
-    },
-    'darkgreen': {
-        name: 'เขียวเข้ม (Dark green)',
-        primary: '#008000',
-        secondary: '#008000',
-        headerBg: '#008000',
-        frameBg: '#008000',
-        barBg: '#008000 ',
-        glow: 'rgba(85, 255, 23, 0.3)',
-        overlayShadow: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(85, 255, 23, 0.3) 60%, transparent 100%)'
-    },
-    'navy-blue': {
-        name: 'กรมท่า (Navy Blue)',
-        primary: '#1a237e',
-        secondary: '#1a237e',
-        headerBg: '#1a237e',
-        frameBg: '#1a237e',
-        barBg: '#1a237e ',
-        glow: 'rgba(54, 23, 255, 0.3)',
-        overlayShadow: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(54, 23, 255, 0.3) 60%, transparent 100%)'
-    },
-    'Red': {
-        name: 'แดง (Red)',
-        primary: '#FF0000',
-        secondary: '#FF0000',
-        headerBg: '#FF0000',
-        frameBg: '#FF0000',
-        barBg: '#FF0000 ',
-        glow: 'rgba(255, 23, 23, 0.3)',
-        overlayShadow: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(255, 23, 23, 0.3) 60%, transparent 100%)'
-    },
-
-};
-
-const PRESET_MAPS = {
-    'RANDOM': 'PG/RANDOM.webp',
-    'BERMUDA': 'PG/5.webp',
-    'PURGATORY': 'PG/4.webp',
-    'KALAHARI': 'PG/2.webp',
-    'NEXTERRA': 'PG/1.webp',
-    'SOLARA': 'PG/3.webp',
-};
-
-let state = {
-    theme: 'orange',
-    delay: 5,
-    autoSwitch: true,
-    activeGroup: '',
-    groups: {}
-};
-
-let isUpdatingFromFirebase = false;
-let currentScreenIndex = 0;
-let autoSwitchTimer = null;
+const dbRef = firebase.database().ref("maprand_pro_state");
 
 const urlParams = new URLSearchParams(window.location.search);
-const isObs = urlParams.get('view') === 'obs' || urlParams.get('obs') === '1';
-if (isObs) {
-    document.body.classList.add('obs-mode');
+if (urlParams.get("obs") === "1") {
+  document.documentElement.classList.add("obs-mode");
+  document.body.classList.add("obs-mode");
 }
 
-// ==========================================================================
-// PREVIEW AUTO SCALE FIT FUNCTION
-// ==========================================================================
-function updatePreviewScale() {
-    const wrapper = document.getElementById('preview-wrapper');
-    const container = document.getElementById('overlay-container');
-    if (!wrapper || !container) return;
+const DEFAULT_MAPS = [
+  { name: "BERMUDA", image: "PG/5.webp", weight: 10 },
+  { name: "NEXTERRA", image: "PG/1.webp", weight: 10 },
+  { name: "KALAHARI", image: "PG/2.webp", weight: 10 },
+  { name: "PURGATORY", image: "PG/4.webp", weight: 10 },
+  { name: "SORALA", image: "PG/3.webp", weight: 10 }
+];
 
-    if (document.body.classList.contains('obs-mode')) {
-        container.style.transform = 'none';
-        return;
-    }
+function preloadImages() {
+  DEFAULT_MAPS.forEach(map => {
+    const img = new Image();
+    img.src = map.image;
+  });
+}
+preloadImages();
 
-    const availableWidth = wrapper.clientWidth;
-    const availableHeight = wrapper.clientHeight;
+const PENALTY_DECAY_FACTOR = 0.15; 
 
-    const scaleX = availableWidth / 1920;
-    const scaleY = availableHeight / 1080;
-    const scale = Math.min(scaleX, scaleY) * 0.92;
+let MATCHES = [
+  { state: 'idle', selectedIndex: 0, reelSequence: [] },
+  { state: 'idle', selectedIndex: 0, reelSequence: [] },
+  { state: 'idle', selectedIndex: 0, reelSequence: [] }
+];
 
-    container.style.transform = `scale(${scale})`;
+let mapUsageCount = [0, 0, 0, 0, 0];
+let lastSpunHistory = [];
+let isAutoSpinning = false;
+let isCustomizedWeights = false; 
+let isSyncingFromRemote = false;
+let globalSpinLock = false;
+const activeAnimations = {};
+
+const gridContainer = document.getElementById("gridContainer");
+
+function getSecureRandom() {
+  if (window.crypto && window.crypto.getRandomValues) {
+    const array = new Uint32Array(1);
+    window.crypto.getRandomValues(array);
+    return array[0] / 4294967296;
+  }
+  return Math.random();
 }
 
-window.addEventListener('resize', updatePreviewScale);
-
-// ==========================================================================
-// FIREBASE REALTIME SYNC LOGIC
-// ==========================================================================
-function saveAndSync() {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch(e) {}
-
-    if (!isUpdatingFromFirebase) {
-        stateRef.set(state).catch(err => console.error("Firebase sync error:", err));
-    }
-    
-    renderAll();
-    startAutoRotation();
-}
-
-function initFirebaseListener() {
-    const syncStatusEl = document.getElementById('syncStatus');
-    
-    stateRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            isUpdatingFromFirebase = true;
-            state = data;
-            if (!state.theme) state.theme = 'orange';
-            applyTheme(state.theme);
-
-            const isTyping = document.activeElement && 
-                (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT' || document.activeElement.tagName === 'TEXTAREA');
-
-            if (isObs || !isTyping) {
-                renderAll();
-                startAutoRotation();
-            }
-            isUpdatingFromFirebase = false;
-
-            if (syncStatusEl) {
-                syncStatusEl.innerText = "ONLINE";
-                syncStatusEl.className = "status-badge sync-online";
-            }
-        } else {
-            saveAndSync();
-        }
-    }, (error) => {
-        console.error("Firebase Listener Error:", error);
-        if (syncStatusEl) {
-            syncStatusEl.innerText = "ERROR";
-            syncStatusEl.className = "status-badge sync-error";
-        }
+function applyStateData(data) {
+  if (!data) return;
+  if (data.mapUsageCount) mapUsageCount = data.mapUsageCount;
+  if (data.lastSpunHistory) lastSpunHistory = data.lastSpunHistory;
+  if (data.weights) {
+    data.weights.forEach((w, i) => {
+      if (DEFAULT_MAPS[i]) DEFAULT_MAPS[i].weight = w;
     });
+  }
+  if (data.isCustomizedWeights !== undefined) isCustomizedWeights = data.isCustomizedWeights;
+
+  if (data.theme) {
+    document.body.setAttribute("data-theme", data.theme);
+    const el = document.getElementById("themeSelect");
+    if (el) el.value = data.theme;
+  }
+  if (data.orientation) {
+    const el = document.getElementById("orientSelect");
+    if (el) el.value = data.orientation;
+    if (gridContainer) gridContainer.className = `grid-container ${data.orientation}`;
+  }
+  if (data.cardWidth) {
+    const el = document.getElementById("widthRange");
+    if (el) el.value = data.cardWidth;
+    document.documentElement.style.setProperty('--card-width', data.cardWidth + 'px');
+  }
+  if (data.cardHeight) {
+    const el = document.getElementById("heightRange");
+    if (el) el.value = data.cardHeight;
+    document.documentElement.style.setProperty('--card-height', data.cardHeight + 'px');
+  }
+  if (data.cardGapX !== undefined) {
+    const el = document.getElementById("gapXRange");
+    if (el) el.value = data.cardGapX;
+    document.documentElement.style.setProperty('--card-gap-x', data.cardGapX + 'px');
+  }
+  if (data.cardGapY !== undefined) {
+    const el = document.getElementById("gapYRange");
+    if (el) el.value = data.cardGapY;
+    document.documentElement.style.setProperty('--card-gap-y', data.cardGapY + 'px');
+  }
+
+  if (data.cooldown) {
+    const el = document.getElementById("cooldownSelect");
+    if (el) el.value = data.cooldown;
+  }
+
+  if (data.matches) {
+    MATCHES = data.matches;
+  }
 }
 
-function applyTheme(themeKey) {
-    const t = THEME_PRESETS[themeKey] || THEME_PRESETS['orange'];
-    state.theme = themeKey;
-    const root = document.documentElement;
-    root.style.setProperty('--theme-primary', t.primary);
-    root.style.setProperty('--theme-secondary', t.secondary);
-    root.style.setProperty('--theme-header-bg', t.headerBg);
-    root.style.setProperty('--theme-frame-bg', t.frameBg);
-    root.style.setProperty('--theme-bar-bg', t.barBg);
-    root.style.setProperty('--theme-glow', t.glow);
-    root.style.setProperty('--theme-overlay-shadow', t.overlayShadow);
+function saveStateToFirebase() {
+  if (isSyncingFromRemote) return;
+  const currentTheme = document.body.getAttribute("data-theme") || "orange";
+  const orientation = document.getElementById("orientSelect")?.value || "horizontal";
+  const cardWidth = document.getElementById("widthRange")?.value || "290";
+  const cardHeight = document.getElementById("heightRange")?.value || "350";
+  const cardGapX = document.getElementById("gapXRange")?.value || "16";
+  const cardGapY = document.getElementById("gapYRange")?.value || "16";
+  const cooldown = document.getElementById("cooldownSelect")?.value || "3";
+  const weights = DEFAULT_MAPS.map(m => m.weight);
 
-    const sel = document.getElementById('themeSelect');
-    if (sel) sel.value = state.theme;
+  const payload = {
+    matches: MATCHES,
+    mapUsageCount,
+    lastSpunHistory,
+    weights,
+    theme: currentTheme,
+    orientation,
+    cardWidth,
+    cardHeight,
+    cardGapX,
+    cardGapY,
+    cooldown,
+    isCustomizedWeights,
+    updatedAt: Date.now()
+  };
+
+  try {
+    localStorage.setItem("maprand_pro_state", JSON.stringify(payload));
+  } catch (e) {}
+
+  dbRef.set(payload).catch(err => {
+    console.error("Firebase Sync Error:", err);
+  });
 }
 
-function changeTheme(themeKey) {
-    applyTheme(themeKey);
-    saveAndSync();
-}
+try {
+  const savedLocal = localStorage.getItem("maprand_pro_state");
+  if (savedLocal) {
+    applyStateData(JSON.parse(savedLocal));
+  }
+} catch(e) {}
 
-function updateState() {
-    state.theme = document.getElementById('themeSelect').value || 'orange';
-    state.delay = parseInt(document.getElementById('delayInput').value) || 5;
-    state.autoSwitch = document.getElementById('autoSwitchCheck').checked;
-    applyTheme(state.theme);
-    saveAndSync();
-}
+dbRef.on("value", (snapshot) => {
+  if (globalSpinLock) return;
 
-function createGroup() {
-    const nameInput = document.getElementById('newGroupName');
-    const gName = nameInput.value.trim().toUpperCase();
-    if (!gName || (state.groups && state.groups[gName])) return;
+  const data = snapshot.val();
+  if (!data) {
+    saveStateToFirebase();
+    return;
+  }
+  isSyncingFromRemote = true;
+  applyStateData(data);
+  render();
 
-    if (!state.groups) state.groups = {};
-
-    state.groups[gName] = {
-        teams: [],
-        matches: [
-            { labelType: 'ROUND', labelVal: 'ROUND 1', map: 'RANDOM', status: 'normal', booyahTeam: '' },
-            { labelType: 'ROUND', labelVal: 'ROUND 2', map: 'RANDOM', status: 'normal', booyahTeam: '' },
-            { labelType: 'ROUND', labelVal: 'ROUND 3', map: 'RANDOM', status: 'normal', booyahTeam: '' },
-            { labelType: 'ROUND', labelVal: 'ROUND 4', map: 'RANDOM', status: 'normal', booyahTeam: '' },
-            { labelType: 'ROUND', labelVal: 'ROUND 5', map: 'RANDOM', status: 'normal', booyahTeam: '' }
-        ]
-    };
-    state.activeGroup = gName;
-    nameInput.value = '';
-    saveAndSync();
-}
-
-function switchGroup(gName) {
-    if (state.groups && state.groups[gName]) {
-        state.activeGroup = gName;
-        saveAndSync();
-    }
-}
-
-function deleteCurrentGroup() {
-    if (!state.activeGroup || !state.groups) return;
-    delete state.groups[state.activeGroup];
-    const remaining = Object.keys(state.groups);
-    state.activeGroup = remaining.length > 0 ? remaining[0] : '';
-    saveAndSync();
-}
-
-function compressImage(file, maxDimension, callback) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            let width = img.width;
-            let height = img.height;
-            if (width > height) {
-                if (width > maxDimension) { height *= maxDimension / width; width = maxDimension; }
-            } else {
-                if (height > maxDimension) { width *= maxDimension / height; height = maxDimension; }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-            callback(canvas.toDataURL('image/png', 0.85));
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-function addTeam() {
-    if (!state.activeGroup || !state.groups || !state.groups[state.activeGroup]) return alert('กรุณาสร้างหรือเลือกกลุ่มก่อนครับ');
-    const teams = state.groups[state.activeGroup].teams || [];
-    if (teams.length >= 12) return alert('เพิ่มทีมได้สูงสุด 12 ทีมต่อกลุ่มครับ');
-
-    const nameInput = document.getElementById('teamNameInput');
-    const fileInput = document.getElementById('teamLogoFileInput');
-    const name = nameInput.value.trim();
-
-    if (!name) return alert('กรุณากรอกชื่อทีมด้วยครับ');
-
-    const doSave = (logoData) => {
-        if (!state.groups[state.activeGroup].teams) state.groups[state.activeGroup].teams = [];
-        state.groups[state.activeGroup].teams.push({ name: name, logo: logoData });
-        nameInput.value = '';
-        fileInput.value = '';
-        saveAndSync();
-    };
-
-    if (fileInput.files && fileInput.files[0]) {
-        compressImage(fileInput.files[0], 220, doSave);
-    } else {
-        doSave(DEFAULT_LOGO);
-    }
-}
-
-function deleteTeam(index) {
-    if (state.activeGroup && state.groups && state.groups[state.activeGroup]) {
-        state.groups[state.activeGroup].teams.splice(index, 1);
-        saveAndSync();
-    }
-}
-
-function addMatchSlot() {
-    if (!state.activeGroup || !state.groups || !state.groups[state.activeGroup]) return;
-    if (!state.groups[state.activeGroup].matches) state.groups[state.activeGroup].matches = [];
-    const matches = state.groups[state.activeGroup].matches;
-
-    matches.push({
-        labelType: 'ROUND',
-        labelVal: `ROUND ${matches.length + 1}`,
-        map: 'RANDOM',
-        status: 'normal',
-        booyahTeam: ''
+  if (data.matches) {
+    data.matches.forEach((m, idx) => {
+      if (m.state === 'rolling' && !activeAnimations[idx]) {
+        startReelAnimation(idx, m.reelSequence, 3000, true);
+      }
     });
-    saveAndSync();
+  }
+
+  if (document.getElementById("rateModal").classList.contains("active")) {
+    renderRateModal();
+  }
+
+  isSyncingFromRemote = false;
+});
+
+function openRateModal() {
+  renderRateModal();
+  document.getElementById("rateModal").classList.add("active");
 }
 
-function deleteMatchSlot(index) {
-    if (state.activeGroup && state.groups && state.groups[state.activeGroup]) {
-        state.groups[state.activeGroup].matches.splice(index, 1);
-        saveAndSync();
-    }
+function closeRateModal() {
+  document.getElementById("rateModal").classList.remove("active");
 }
 
-function updateMatchLabel(index, type, value) {
-    if (state.activeGroup && state.groups && state.groups[state.activeGroup]) {
-        const match = state.groups[state.activeGroup].matches[index];
-        if (type !== undefined) match.labelType = type;
-        if (value !== undefined) match.labelVal = value;
-        saveAndSync();
-    }
-}
+function renderRateModal() {
+  const container = document.getElementById("rateSlidersContainer");
+  const badge = document.getElementById("modalStatusBadge");
+  container.innerHTML = "";
 
-function updateMatchMap(index, mapName) {
-    if (state.activeGroup && state.groups && state.groups[state.activeGroup]) {
-        state.groups[state.activeGroup].matches[index].map = mapName;
-        saveAndSync();
-    }
-}
+  const effectiveWeights = DEFAULT_MAPS.map((m, idx) => {
+    const count = mapUsageCount[idx] || 0;
+    return m.weight * Math.pow(PENALTY_DECAY_FACTOR, count);
+  });
 
-function setMatchStatus(matchIndex, newStatus) {
-    if (!state.activeGroup || !state.groups || !state.groups[state.activeGroup]) return;
-    const matches = state.groups[state.activeGroup].matches;
+  const totalWeight = effectiveWeights.reduce((sum, w) => sum + w, 0);
 
-    if (newStatus === 'upcoming') {
-        matches.forEach(m => { if (m.status === 'upcoming') m.status = 'normal'; });
+  if (isCustomizedWeights) {
+    badge.className = "modal-status-badge custom-mode";
+    badge.innerText = "⚙ สถานะ: กำหนดเอง (น้ำหนัก x 0.15^จำนวนครั้งที่เคยออก)";
+  } else {
+    badge.className = "modal-status-badge default-mode";
+    badge.innerText = "📉 กฎลดโอกาสซ้ำแบบรุนแรง (ออก 1 ครั้ง เหลือ 15%, ออก 2 ครั้ง เหลือ 2.25%)";
+  }
+
+  DEFAULT_MAPS.forEach((map, idx) => {
+    const effW = effectiveWeights[idx];
+    let chancePct = 0;
+    if (totalWeight > 0) {
+      chancePct = ((effW / totalWeight) * 100).toFixed(1);
+      if (chancePct.endsWith('.0')) chancePct = Math.round(chancePct);
     }
+
+    const count = mapUsageCount[idx] || 0;
+    const row = document.createElement("div");
+    row.className = "map-rate-item";
     
-    matches[matchIndex].status = newStatus;
-    saveAndSync();
-}
-
-function updateWinner(matchIndex, teamName) {
-    if (!state.activeGroup || !state.groups || !state.groups[state.activeGroup]) return;
-    const matches = state.groups[state.activeGroup].matches;
-
-    matches[matchIndex].booyahTeam = teamName;
-    if (teamName !== '') {
-        matches[matchIndex].status = 'booyah';
-    }
-    saveAndSync();
-}
-
-function renderAll() {
-    document.getElementById('themeSelect').value = state.theme || 'orange';
-    document.getElementById('delayInput').value = state.delay || 5;
-    document.getElementById('autoSwitchCheck').checked = state.autoSwitch;
-
-    const groupKeys = state.groups ? Object.keys(state.groups) : [];
-    const groupSelect = document.getElementById('groupSelect');
-    groupSelect.innerHTML = groupKeys.length === 0 
-        ? '<option value="">-- ยังไม่มีกลุ่ม --</option>' 
-        : groupKeys.map(g => `<option value="${g}" ${g === state.activeGroup ? 'selected' : ''}>${g}</option>`).join('');
-
-    const teamSec = document.getElementById('teamSection');
-    const mapSec = document.getElementById('mapSection');
-    const headerBanner = document.getElementById('displayGroupName');
-
-    // กรณีที่ยังไม่ได้เพิ่มหรือเลือกกลุ่มทีม
-    if (!state.activeGroup || !state.groups || !state.groups[state.activeGroup]) {
-        teamSec.style.display = 'none';
-        mapSec.style.display = 'none';
-        if (headerBanner) headerBanner.style.display = 'none';
-        
-        document.getElementById('displayTeamsGrid').innerHTML = `
-            <div class="empty-group-container">
-                <div class="empty-group-card">
-                    <div class="empty-title">ยังไม่ได้เพิ่มกลุ่มทีม</div>
-                    <div class="empty-desc">โปรดสร้างหรือเลือกกลุ่มทีมจากเมนูฝั่งขวาเพื่อเริ่มต้นใช้งาน</div>
-                </div>
-            </div>
-        `;
-        document.getElementById('dynamic-map-screens').innerHTML = '';
-        updatePreviewScale();
-        return;
-    } else {
-        if (headerBanner) headerBanner.style.display = 'flex';
+    let displayStatus = `${chancePct}% (ออก ${count} ครั้ง)`;
+    if (map.weight === 0) {
+      displayStatus = `0% 🚫`;
     }
 
-    teamSec.style.display = 'block';
-    mapSec.style.display = 'block';
+    row.innerHTML = `
+      <span class="map-rate-name" style="${map.weight === 0 ? 'opacity: 0.35; color: #ff5252;' : ''}">${map.name}</span>
+      <input type="range" class="map-rate-slider" min="0" max="20" value="${map.weight}" oninput="updateMapWeight(${idx}, this.value)">
+      <span class="map-rate-val" style="${map.weight === 0 ? 'color: #ff5252;' : ''}">${displayStatus}</span>
+    `;
+    container.appendChild(row);
+  });
+}
 
-    const activeData = state.groups[state.activeGroup];
-    const teamsList = activeData.teams || [];
-    const matchesList = activeData.matches || [];
+function updateMapWeight(index, value) {
+  DEFAULT_MAPS[index].weight = parseInt(value) || 0;
+  isCustomizedWeights = true; 
+  renderRateModal();
+  saveStateToFirebase();
+}
 
-    document.getElementById('teamCountBadge').innerText = `${teamsList.length}/12 ทีม`;
-    headerBanner.innerText = state.activeGroup;
+function resetRatesToEqual() {
+  DEFAULT_MAPS.forEach(m => m.weight = 10);
+  isCustomizedWeights = false; 
+  renderRateModal();
+  saveStateToFirebase();
+}
 
-    // Admin Teams List
-    document.getElementById('teamsListAdmin').innerHTML = teamsList.length === 0
-        ? '<div style="font-size:11px; color:#6b7280; text-align:center; padding:8px;">ยังไม่มีทีมในกลุ่มนี้</div>'
-        : teamsList.map((t, i) => `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:#111520; padding:6px 10px; margin-bottom:4px; border-radius:4px; border:1px solid #1f293d;">
-                <span style="font-size:12px; font-weight:700;">#${i + 1} ${t.name}</span>
-                <button class="btn-danger" onclick="deleteTeam(${i})">ลบ</button>
-            </div>
-        `).join('');
+let audioCtx = null;
 
-    // Admin Map Control Slots
-    const mapKeys = Object.keys(PRESET_MAPS);
-    document.getElementById('mapSettingsContainer').innerHTML = matchesList.map((m, i) => {
-        const currentStatus = m.status || (m.booyahTeam ? 'booyah' : 'normal');
-        const labelType = m.labelType || 'ROUND';
-        const labelVal = m.labelVal || `ROUND ${i + 1}`;
+function getAudioContext() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
 
-        return `
-        <div style="background:#111520; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #1f293d;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <span style="color:var(--theme-primary); font-weight:900; font-size:13px;">#${i + 1} - ${labelVal} (${m.map})</span>
-                <button class="btn-danger" onclick="deleteMatchSlot(${i})">ลบแมทช์</button>
-            </div>
-            
-            <div style="display:flex; gap:6px; margin-bottom:6px;">
-                <div style="flex:1;">
-                    <label>ประเภทป้าย</label>
-                    <select onchange="updateMatchLabel(${i}, this.value, undefined)">
-                        <option value="ROUND" ${labelType === 'ROUND' ? 'selected' : ''}>รอบ (ROUND/GAME)</option>
-                        <option value="GROUP" ${labelType === 'GROUP' ? 'selected' : ''}>กลุ่ม (GROUP)</option>
-                    </select>
-                </div>
-                <div style="flex:1;">
-                    <label>ข้อความป้าย</label>
-                    <input type="text" value="${labelVal}" onchange="updateMatchLabel(${i}, undefined, this.value)">
-                </div>
-            </div>
+function playTickSound(pitch = 600) {
+  try {
+    const ctx = getAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(pitch, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.04);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 0.04);
+  } catch(e){}
+}
 
-            <label>เลือกแผนที่</label>
-            <select onchange="updateMatchMap(${i}, this.value)">
-                ${mapKeys.map(k => `<option value="${k}" ${m.map === k ? 'selected' : ''}>${k}</option>`).join('')}
-            </select>
+function playWinSound() {
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + i * 0.06);
+      gain.gain.setValueAtTime(0.18, now + i * 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.5);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now + i * 0.06); osc.stop(now + i * 0.06 + 0.5);
+    });
+  } catch(e){}
+}
 
-            <label style="margin-top:6px;">สถานะแมทช์</label>
-            <div class="status-segmented-ctrl">
-                <button class="${currentStatus === 'normal' ? 'active-normal' : ''}" onclick="setMatchStatus(${i}, 'normal')">⚪ ปกติ</button>
-                <button class="${currentStatus === 'upcoming' ? 'active-upcoming' : ''}" onclick="setMatchStatus(${i}, 'upcoming')">📌 UPCOMING</button>
-                <button class="${currentStatus === 'booyah' ? 'active-booyah' : ''}" onclick="setMatchStatus(${i}, 'booyah')">👑 BOOYAH!</button>
-            </div>
+function renderReelItemHTML(mapObj) {
+  if (!mapObj) return `<div class="reel-item"></div>`;
+  return `
+    <div class="reel-item">
+      <img class="map-svg-art" src="${mapObj.image}" loading="eager" decoding="async">
+    </div>
+  `;
+}
 
-            ${currentStatus === 'booyah' ? `
-                <div style="margin-top:6px; background:#182030; padding:8px; border-radius:6px;">
-                    <label style="color:var(--theme-primary); margin-top:0;">เลือกทีมที่ชนะ BOOYAH!</label>
-                    <select onchange="updateWinner(${i}, this.value)">
-                        <option value="">-- เลือกทีมชนะ --</option>
-                        ${teamsList.map(t => `<option value="${t.name}" ${m.booyahTeam === t.name ? 'selected' : ''}>🏆 ${t.name}</option>`).join('')}
-                    </select>
-                </div>
-            ` : ''}
+function render() {
+  gridContainer.innerHTML = "";
+
+  const isAnyRolling = globalSpinLock || MATCHES.some(m => m.state === 'rolling');
+  
+  const btnSpinNext = document.getElementById("btnSpin");
+  const btnAdd = document.getElementById("btnAddMatch");
+  const btnRemove = document.getElementById("btnRemoveMatch");
+  if (btnSpinNext) btnSpinNext.disabled = isAnyRolling;
+  if (btnAdd) btnAdd.disabled = isAnyRolling;
+  if (btnRemove) btnRemove.disabled = isAnyRolling;
+
+  MATCHES.forEach((m, i) => {
+    const card = document.createElement("div");
+    card.className = "match-card";
+
+    let displayName = "READY";
+    let nameClass = "map-name placeholder";
+    let reelHTML = "";
+
+    if (m.state === 'idle') {
+      displayName = "READY";
+      nameClass = "map-name placeholder";
+      reelHTML = `<div class="reel-item"></div>`;
+    } else if (m.state === 'rolling') {
+      displayName = "RANDOMIZING...";
+      nameClass = "map-name spinning";
+      if (m.reelSequence && m.reelSequence.length > 0) {
+        m.reelSequence.forEach(mapObj => {
+          reelHTML += renderReelItemHTML(mapObj);
+        });
+      }
+    } else if (m.state === 'done') {
+      const selectedMap = DEFAULT_MAPS[m.selectedIndex] || DEFAULT_MAPS[0];
+      displayName = selectedMap.name;
+      nameClass = "map-name";
+      reelHTML = renderReelItemHTML(selectedMap);
+    }
+
+    const matchNoStr = String(i + 1).padStart(2, '0');
+
+    card.innerHTML = `
+      <div class="card-badge">MATCH ${matchNoStr}</div>
+      <button class="card-reset-btn" title="รีเซ็ตแมตช์นี้" onclick="resetSingleMatch(${i})">🔄</button>
+
+      <div class="map-viewport">
+        <div class="map-reel" id="reel-${i}">
+          ${reelHTML}
         </div>
-    `}).join('');
+        <div class="map-shade"></div>
+      </div>
 
-    // Teams 3x4 Grid Display
-    let teamsHtml = '';
-    for (let i = 0; i < 12; i++) {
-        if (i < teamsList.length) {
-            const t = teamsList[i];
-            teamsHtml += `
-                <div class="team-card-square">
-                    <div class="logo-area"><img src="${t.logo}" alt="${t.name}"></div>
-                    <div class="team-name-bar">${t.name}</div>
-                </div>
-            `;
-        } else {
-            teamsHtml += `
-                <div class="team-card-square">
-                    <div class="logo-area"></div>
-                    <div class="team-name-bar">-</div>
-                </div>
-            `;
+      <div class="card-bottom-bar">
+        <div class="map-info">
+          <div class="map-label">SELECTED MAP</div>
+          <div class="${nameClass}" id="name-${i}">${displayName}</div>
+        </div>
+      </div>
+    `;
+    gridContainer.appendChild(card);
+  });
+}
+
+function startReelAnimation(i, sequence, durationMs = 3000, isRemote = false) {
+  if (activeAnimations[i]) return;
+  activeAnimations[i] = true;
+
+  setTimeout(() => {
+    const reelEl = document.getElementById(`reel-${i}`);
+    if (reelEl && sequence && sequence.length > 0) {
+      void reelEl.offsetWidth; 
+      reelEl.style.transition = `transform ${durationMs}ms cubic-bezier(0.08, 0.82, 0.17, 1)`;
+      reelEl.style.transform = `translate3d(0, -${(sequence.length - 1) * 100}%, 0)`;
+    }
+
+    let tickDelay = 45;
+    let elapsed = 0;
+    let currentPitch = 400;
+
+    function scheduleTick() {
+      if (!activeAnimations[i] || elapsed >= durationMs - 200) return;
+      playTickSound(currentPitch);
+      currentPitch += 6;
+      elapsed += tickDelay;
+      tickDelay *= 1.08;
+      setTimeout(scheduleTick, tickDelay);
+    }
+    scheduleTick();
+
+    let animationFinished = false;
+    const onFinish = () => {
+      if (animationFinished) return;
+      animationFinished = true;
+      
+      delete activeAnimations[i];
+      globalSpinLock = false;
+      MATCHES[i].state = 'done';
+      playWinSound();
+      render(); 
+      if (!isRemote) {
+        saveStateToFirebase();
+      }
+    };
+
+    if (reelEl) {
+      reelEl.addEventListener("transitionend", onFinish, { once: true });
+    }
+    setTimeout(onFinish, durationMs + 100);
+  }, 50);
+}
+
+function updateTheme() {
+  document.body.setAttribute("data-theme", document.getElementById("themeSelect").value);
+  saveStateToFirebase();
+}
+
+function updateOrientation() {
+  const orient = document.getElementById("orientSelect").value;
+  gridContainer.className = `grid-container ${orient}`;
+  saveStateToFirebase();
+}
+
+function updateCardWidth(val) {
+  document.documentElement.style.setProperty('--card-width', val + 'px');
+  saveStateToFirebase();
+}
+
+function updateCardHeight(val) {
+  document.documentElement.style.setProperty('--card-height', val + 'px');
+  saveStateToFirebase();
+}
+
+function updateCardGapX(val) {
+  document.documentElement.style.setProperty('--card-gap-x', val + 'px');
+  saveStateToFirebase();
+}
+
+function updateCardGapY(val) {
+  document.documentElement.style.setProperty('--card-gap-y', val + 'px');
+  saveStateToFirebase();
+}
+
+function updateCooldown() {
+  saveStateToFirebase();
+}
+
+function addMatch() {
+  if (globalSpinLock) return;
+  MATCHES.push({ state: 'idle', selectedIndex: 0, reelSequence: [] });
+  render();
+  saveStateToFirebase();
+}
+
+function removeMatch() {
+  if (globalSpinLock) return;
+  if (MATCHES.length > 1) {
+    const popped = MATCHES.pop();
+    if (popped.state === 'done') {
+      const idx = popped.selectedIndex;
+      if (mapUsageCount[idx] && mapUsageCount[idx] > 0) mapUsageCount[idx]--;
+    }
+    rebuildHistory();
+    render();
+    saveStateToFirebase();
+  }
+}
+
+function rebuildHistory() {
+  lastSpunHistory = [];
+  const limit = parseInt(document.getElementById("cooldownSelect").value) || 0;
+  MATCHES.forEach(m => {
+    if (m.state === 'done') {
+      lastSpunHistory.push(m.selectedIndex);
+      if (limit > 0 && lastSpunHistory.length > limit) {
+        lastSpunHistory.shift();
+      }
+    }
+  });
+}
+
+function resetSingleMatch(index) {
+  if (globalSpinLock || MATCHES[index].state === 'rolling') return;
+  if (MATCHES[index].state === 'done') {
+    const prevIdx = MATCHES[index].selectedIndex;
+    if (mapUsageCount[prevIdx] && mapUsageCount[prevIdx] > 0) {
+      mapUsageCount[prevIdx]--;
+    }
+  }
+  MATCHES[index].state = 'idle';
+  MATCHES[index].selectedIndex = 0;
+  MATCHES[index].reelSequence = [];
+  rebuildHistory();
+  render();
+  saveStateToFirebase();
+}
+
+function stopAutoSpin() {
+  isAutoSpinning = false;
+  const btnAuto = document.getElementById("btnAutoSpin");
+  if (btnAuto) {
+    btnAuto.classList.remove("active");
+    btnAuto.innerText = "AUTO";
+  }
+}
+
+function resetAll() {
+  stopAutoSpin();
+  globalSpinLock = false;
+  MATCHES.forEach(m => {
+    m.state = 'idle';
+    m.selectedIndex = 0;
+    m.reelSequence = [];
+  });
+  lastSpunHistory = [];
+  for (let i = 0; i < DEFAULT_MAPS.length; i++) {
+    mapUsageCount[i] = 0;
+  }
+  render();
+  saveStateToFirebase();
+}
+
+function getWeightedRandomMapIndex(availableIndices) {
+  let validIndices = availableIndices.filter(idx => DEFAULT_MAPS[idx].weight > 0);
+
+  if (validIndices.length === 0) {
+    validIndices = DEFAULT_MAPS.map((_, idx) => idx).filter(idx => DEFAULT_MAPS[idx].weight > 0);
+  }
+  if (validIndices.length === 0) {
+    validIndices = DEFAULT_MAPS.map((_, idx) => idx);
+  }
+
+  const weightedList = validIndices.map(idx => {
+    let baseWeight = DEFAULT_MAPS[idx].weight;
+    const count = mapUsageCount[idx] || 0;
+    const calculatedWeight = Math.max(1e-9, baseWeight * Math.pow(PENALTY_DECAY_FACTOR, count));
+    return { index: idx, weight: calculatedWeight };
+  });
+
+  const totalWeight = weightedList.reduce((sum, item) => sum + item.weight, 0);
+
+  if (totalWeight <= 0) {
+    const randIdx = Math.floor(getSecureRandom() * validIndices.length);
+    return validIndices[randIdx];
+  }
+
+  let randomVal = getSecureRandom() * totalWeight;
+  for (let item of weightedList) {
+    if (randomVal <= item.weight) return item.index;
+    randomVal -= item.weight;
+  }
+  return weightedList[weightedList.length - 1].index;
+}
+
+function rollMatchCard(i, durationMs = 3000) {
+  return new Promise((resolve) => {
+    if (globalSpinLock || MATCHES[i].state === 'rolling') {
+      return resolve();
+    }
+
+    globalSpinLock = true;
+    const cooldownLimit = parseInt(document.getElementById("cooldownSelect").value) || 0;
+
+    let availableIndices = [];
+    for (let idx = 0; idx < DEFAULT_MAPS.length; idx++) {
+      if (DEFAULT_MAPS[idx].weight > 0) {
+        if (cooldownLimit === 0 || !lastSpunHistory.slice(-cooldownLimit).includes(idx)) {
+          availableIndices.push(idx);
         }
-    }
-    document.getElementById('displayTeamsGrid').innerHTML = teamsHtml;
-
-    renderMapScreens(matchesList, teamsList);
-    updatePreviewScale();
-}
-
-function renderMapScreens(matches, teams) {
-    const container = document.getElementById('dynamic-map-screens');
-    const MAPS_PER_PAGE = 5;
-    const mapPages = [];
-    for (let i = 0; i < matches.length; i += MAPS_PER_PAGE) {
-        mapPages.push(matches.slice(i, i + MAPS_PER_PAGE));
+      }
     }
 
-    const currentPages = container.querySelectorAll('.view-screen');
-    if (currentPages.length !== mapPages.length) {
-        container.innerHTML = '';
-        mapPages.forEach((pageMatches, pageIndex) => {
-            const screenDiv = document.createElement('div');
-            screenDiv.className = `view-screen map-screen-page-${pageIndex + 1}`;
-            screenDiv.innerHTML = `<div class="maps-stack-5"></div>`;
-            container.appendChild(screenDiv);
-        });
+    if (availableIndices.length < 1) {
+      availableIndices = DEFAULT_MAPS.map((_, idx) => idx).filter(idx => DEFAULT_MAPS[idx].weight > 0);
+    }
+    if (availableIndices.length === 0) {
+      availableIndices = DEFAULT_MAPS.map((_, idx) => idx);
     }
 
-    mapPages.forEach((pageMatches, pageIndex) => {
-        const screenDiv = container.children[pageIndex];
-        const stackDiv = screenDiv.querySelector('.maps-stack-5');
-        const currentCards = stackDiv.querySelectorAll('.map-card-outer');
+    const winIdx = getWeightedRandomMapIndex(availableIndices);
+    
+    mapUsageCount[winIdx] = (mapUsageCount[winIdx] || 0) + 1;
+    lastSpunHistory.push(winIdx);
+    if (cooldownLimit > 0 && lastSpunHistory.length > cooldownLimit) {
+      lastSpunHistory.shift();
+    }
 
-        if (currentCards.length !== pageMatches.length) {
-            stackDiv.innerHTML = pageMatches.map(() => `
-                <div class="map-card-outer">
-                    <div class="map-card-inner">
-                        <div class="map-image-container">
-                            <div class="map-bg-img"></div>
-                            <div class="map-dark-overlay"></div>
-                            <div class="status-inline-container"></div>
-                            <div class="winner-logo-container"></div>
-                        </div>
-                        <div class="map-tab-orange"></div>
-                    </div>
-                </div>
-            `).join('');
-        }
+    const sequenceLength = 20;
+    const sequence = [];
+    for (let s = 0; s < sequenceLength - 1; s++) {
+      const randIdx = Math.floor(getSecureRandom() * DEFAULT_MAPS.length);
+      sequence.push(DEFAULT_MAPS[randIdx]);
+    }
+    sequence.push(DEFAULT_MAPS[winIdx]);
 
-        const cards = stackDiv.querySelectorAll('.map-card-outer');
-        pageMatches.forEach((m, idx) => {
-            const card = cards[idx];
-            const status = m.status || (m.booyahTeam ? 'booyah' : 'normal');
-            const isBooyah = status === 'booyah';
-            const isUpcoming = status === 'upcoming';
-            const showShadow = isBooyah || isUpcoming;
-            const winnerObj = teams.find(t => t.name === m.booyahTeam);
-            const mapBg = PRESET_MAPS[m.map] || PRESET_MAPS['RANDOM'];
-            const labelVal = m.labelVal || `ROUND ${idx + 1}`;
+    MATCHES[i].state = 'rolling';
+    MATCHES[i].selectedIndex = winIdx;
+    MATCHES[i].reelSequence = sequence;
 
-            const bgDiv = card.querySelector('.map-bg-img');
-            if (bgDiv.style.backgroundImage !== `url("${mapBg}")`) {
-                bgDiv.style.backgroundImage = `url('${mapBg}')`;
-            }
+    render();
+    saveStateToFirebase();
 
-            const overlay = card.querySelector('.map-dark-overlay');
-            if (showShadow) {
-                overlay.classList.add('active-overlay');
-            } else {
-                overlay.classList.remove('active-overlay');
-            }
+    startReelAnimation(i, sequence, durationMs, false);
 
-            const statusContainer = card.querySelector('.status-inline-container');
-            let statusHtml = '';
-            if (isUpcoming) {
-                statusHtml = `<div class="upcoming-text">UPCOMING</div>`;
-            } else if (isBooyah) {
-                statusHtml = `<img class="booyah-embedded-img" src="${BOOYAH_IMG_SRC}" alt="BOOYAH!">`;
-            }
-            if (statusContainer.innerHTML !== statusHtml) {
-                statusContainer.innerHTML = statusHtml;
-            }
-
-            const winnerContainer = card.querySelector('.winner-logo-container');
-            let winnerHtml = (isBooyah && winnerObj) ? `<img class="winner-logo-topright" src="${winnerObj.logo}" alt="${winnerObj.name}">` : '';
-            if (winnerContainer.innerHTML !== winnerHtml) {
-                winnerContainer.innerHTML = winnerHtml;
-            }
-
-            const combinedLabel = `${labelVal} - ${m.map}`;
-            const tagTab = card.querySelector('.map-tab-orange');
-            if (tagTab.innerText !== combinedLabel) tagTab.innerText = combinedLabel;
-        });
-    });
+    setTimeout(() => {
+      resolve();
+    }, durationMs + 150);
+  });
 }
 
-function startAutoRotation() {
-    if (autoSwitchTimer) clearInterval(autoSwitchTimer);
-    if (!state.autoSwitch) return;
-
-    autoSwitchTimer = setInterval(() => {
-        const allScreens = document.querySelectorAll('.view-screen');
-        if (allScreens.length <= 1) return;
-
-        const prevIndex = currentScreenIndex;
-        currentScreenIndex = (currentScreenIndex + 1) % allScreens.length;
-
-        allScreens[prevIndex].classList.remove('active');
-        allScreens[currentScreenIndex].classList.add('active');
-
-    }, (state.delay || 5) * 1000);
+async function spinNextMatch() {
+  if (globalSpinLock) return;
+  const idleIdx = MATCHES.findIndex(m => m.state === 'idle');
+  if (idleIdx !== -1) {
+    await rollMatchCard(idleIdx);
+  }
 }
 
-function copyObsLink() {
-    const obsUrl = window.location.origin + window.location.pathname + '?view=obs';
-    navigator.clipboard.writeText(obsUrl)
-        .then(() => alert('คัดลอกลิงก์สำหรับ OBS Browser Source เรียบร้อย!\n' + obsUrl));
+async function toggleAutoSpin() {
+  const btnAuto = document.getElementById("btnAutoSpin");
+  if (isAutoSpinning) {
+    stopAutoSpin();
+    return;
+  }
+
+  isAutoSpinning = true;
+  if (btnAuto) {
+    btnAuto.classList.add("active");
+    btnAuto.innerText = "STOP AUTO";
+  }
+
+  runAutoSpinLoop();
 }
 
-function openObsPreview() {
-    window.open(window.location.origin + window.location.pathname + '?view=obs', '_blank');
+async function runAutoSpinLoop() {
+  while (isAutoSpinning) {
+    const idleIdx = MATCHES.findIndex(m => m.state === 'idle');
+    if (idleIdx === -1) {
+      stopAutoSpin();
+      break;
+    }
+    await rollMatchCard(idleIdx, 2500);
+    if (!isAutoSpinning) break;
+    await new Promise(r => setTimeout(r, 1000));
+  }
 }
 
-window.onload = () => {
-    initFirebaseListener();
-    updatePreviewScale();
-};
+function toggleOBSMode() {
+  document.documentElement.classList.toggle("obs-mode");
+  document.body.classList.toggle("obs-mode");
+}
+
+function copyDataUrl() {
+  const currentUrl = new URL(window.location.href);
+  currentUrl.searchParams.set("obs", "1");
+  navigator.clipboard.writeText(currentUrl.toString()).then(() => {
+    alert("คัดลอก URL สำหรับ OBS เรียบร้อยแล้ว!");
+  }).catch(err => {
+    prompt("คัดลอก URL นี้ไปใส่ใน OBS Browser Source:", currentUrl.toString());
+  });
+}
+
+render();

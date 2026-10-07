@@ -1,102 +1,142 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Free Fire</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,700;0,900;1,800;1,900&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/webp" href="PG/LOGO-S1.webp">
-    
-    <!-- CSS Link -->
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- Firebase SDK Compat -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Fire Random MAP</title>
+ <link rel="icon" type="image/webp" href="PG/LOGO-S1.webp">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body data-theme="orange">
 
-    <!-- PREVIEW AREA (ฝั่งซ้าย - หน้าแสดงตัวอย่าง) -->
-    <div id="preview-wrapper">
-        <div id="overlay-container">
-            <!-- SCREEN 1: SQUARE 3x4 TEAMS GRID -->
-            <div id="teams-screen" class="view-screen active">
-                <div class="group-header-banner" id="displayGroupName">-</div>
-                <div class="teams-grid-3x4" id="displayTeamsGrid"></div>
-            </div>
+<div id="app">
+  <!-- ฝั่งซ้าย: พื้นที่แสดงผลการ์ดแมพ -->
+  <div class="grid-wrapper">
+    <main class="grid-container horizontal" id="gridContainer"></main>
+  </div>
 
-            <!-- SCREEN 2+: DYNAMIC MAP SCREENS -->
-            <div id="dynamic-map-screens" style="width:100%; height:100%; position:relative;"></div>
-        </div>
+  <!-- ฝั่งขวา: แผงควบคุม (Control Panel) -->
+  <aside class="side-panel">
+    <div class="panel-header">
+      <h2 class="panel-title">CONTROL PANEL</h2>
     </div>
 
-    <!-- ADMIN CONTROL PANEL (ฝั่งขวา - คอนโซลควบคุม) -->
-    <div id="admin-panel">
-        <div class="panel-header">
-            <h2>⚙ CONTROL PANEL</h2>
-            <span id="syncStatus" class="status-badge sync-connecting">CONNECTING...</span>
+    <div class="panel-content">
+      <!-- กลุ่มปุ่มสุ่ม -->
+      <div class="control-group">
+        <span class="group-title">🎲 สุ่มระบบ</span>
+        <div class="group-row">
+          <button class="btn-action-spin" id="btnSpin" onclick="spinNextMatch()">SPIN NEXT</button>
+          <button class="btn-action-auto" id="btnAutoSpin" onclick="toggleAutoSpin()">AUTO</button>
         </div>
+      </div>
 
-        <div class="panel-section">
-            <h3>ควบ OBS & สลับหน้า</h3>
-            <button class="btn" onclick="copyObsLink()">📋 คัดลอกลิงก์ OBS Source (?view=obs)</button>
-            <button class="btn btn-sec" style="margin-top:6px;" onclick="openObsPreview()">👁 ดูตัวอย่างหน้าจอ OBS</button>
-
-            <label style="margin-top:10px;">เลือกธีมสีหลัก</label>
-            <select id="themeSelect" onchange="changeTheme(this.value)">
-                <option value="orange">🍊 ส้มล้วน (Orange)</option>
-                <option value="darkblue">🔷 น้ำเงินเข้ม (Dark Blue)</option>
-                <option value="pink">💗 ชมพู (Pink)</option>
-                <option value="darkgreen">🌲 เขียวเข้ม (Dark green)</option>
-                <option value="navy-blue">⚓ กรมท่า (Navy Blue)</option>
-                <option value="Red">🔴 แดง (Red)</option>
-            </select>
-            
-            <label style="margin-top:8px;">ระยะเวลาแสดงแต่ละหน้า (วินาที)</label>
-            <input type="number" id="delayInput" value="5" min="2" max="60" onchange="updateState()">
-            
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:8px;">
-                <input type="checkbox" id="autoSwitchCheck" checked onchange="updateState()" style="width:auto;"> เปิดระบบสลับหน้าจออัตโนมัติ
-            </label>
+      <!-- กลุ่มจัดการแมตช์ -->
+      <div class="control-group">
+        <span class="group-title">🎮 จำนวนแมตช์</span>
+        <div class="group-row">
+          <button class="btn-icon-ctrl" id="btnAddMatch" onclick="addMatch()">+ เพิ่ม</button>
+          <button class="btn-icon-ctrl" id="btnRemoveMatch" onclick="removeMatch()">ลบ</button>
         </div>
+      </div>
 
-        <!-- GROUP MANAGEMENT -->
-        <div class="panel-section">
-            <h3>จัดการกลุ่มทีม (Group)</h3>
-            <label>กลุ่มที่กำลังใช้งาน</label>
-            <select id="groupSelect" onchange="switchGroup(this.value)"></select>
+      <!-- กลุ่มการตั้งค่าสุ่ม -->
+      <div class="control-group">
+        <span class="group-title">⚙ ตั้งค่าสุ่ม</span>
+        <button class="btn-icon-ctrl highlight" onclick="openRateModal()">อัตราสุ่ม 5 แมพ</button>
+      </div>
 
-            <div style="display:flex; gap:6px; margin-top:6px;">
-                <input type="text" id="newGroupName" placeholder="ชื่อกลุ่ม เช่น GROUP A">
-                <button class="btn" style="width:110px; margin-top:0;" onclick="createGroup()">+ เพิ่มกลุ่ม</button>
-            </div>
-            <button class="btn btn-danger" style="width:100%; margin-top:6px;" onclick="deleteCurrentGroup()">ลบกลุ่มปัจจุบัน</button>
+      <!-- การวางแนว -->
+      <div class="control-group">
+        <span class="group-title">📐 การวางแนว</span>
+        <select id="orientSelect" onchange="updateOrientation()">
+          <option value="horizontal" selected>แนวนอน</option>
+          <option value="vertical">แนวตั้ง</option>
+        </select>
+      </div>
+
+      <!-- การปรับขนาดและระยะห่าง -->
+      <div class="control-group size-group">
+        <span class="group-title">📐 ขนาด & ระยะห่าง</span>
+        <div class="range-item">
+          <div class="range-label"><span>ความกว้าง</span><input type="range" class="size-slider" id="widthRange" min="160" max="500" value="290" oninput="updateCardWidth(this.value)"></div>
         </div>
-
-        <!-- TEAM MANAGEMENT -->
-        <div id="teamSection" class="panel-section" style="display:none;">
-            <h3>
-                <span>เพิ่มทีมเข้ากลุ่ม (สูงสุด 12 ทีม)</span>
-                <span id="teamCountBadge" style="color:var(--theme-primary);">0/12</span>
-            </h3>
-            <label>ชื่อทีม *</label>
-            <input type="text" id="teamNameInput" placeholder="พิมพ์ชื่อทีมที่นี่...">
-            <label>รูปโลโก้ทีม</label>
-            <input type="file" id="teamLogoFileInput" accept="image/*">
-            <button class="btn" style="margin-top:8px;" onclick="addTeam()">+ บันทึกเพิ่มทีม</button>
-
-            <div id="teamsListAdmin" style="margin-top:10px; max-height:130px; overflow-y:auto;"></div>
+        <div class="range-item">
+          <div class="range-label"><span>ความสูง</span><input type="range" class="size-slider" id="heightRange" min="180" max="500" value="350" oninput="updateCardHeight(this.value)"></div>
         </div>
-
-        <!-- MAP MANAGEMENT -->
-        <div id="mapSection" class="panel-section" style="display:none;">
-            <h3>จัดการแมพ (เลือก รอบ / สถานะ)</h3>
-            <button class="btn" style="margin-bottom:8px;" onclick="addMatchSlot()">+ เพิ่มแมทช์ใหม่</button>
-            <div id="mapSettingsContainer"></div>
+        <div class="range-item">
+          <div class="range-label"><span>ระยะห่างนอน</span><input type="range" class="size-slider" id="gapXRange" min="0" max="100" value="16" oninput="updateCardGapX(this.value)"></div>
         </div>
+        <div class="range-item">
+          <div class="range-label"><span>ระยะห่างตั้ง</span><input type="range" class="size-slider" id="gapYRange" min="0" max="100" value="16" oninput="updateCardGapY(this.value)"></div>
+        </div>
+      </div>
+
+      <!-- เงื่อนไขกันซ้ำ -->
+      <div class="control-group">
+        <span class="group-title">🛡 เงื่อนไขกันซ้ำ</span>
+        <select id="cooldownSelect" onchange="updateCooldown()">
+          <option value="3" selected>เว้น 3 แมตช์ล่าสุด</option>
+          <option value="2">เว้น 2 แมตช์ล่าสุด</option>
+          <option value="1">เว้น 1 แมตช์ล่าสุด</option>
+          <option value="0">สุ่มอิสระ 100%</option>
+        </select>
+      </div>
+
+      <!-- ธีมสี -->
+      <div class="control-group">
+        <span class="group-title">🎨 ธีมสี</span>
+        <select id="themeSelect" onchange="updateTheme()">
+          <option value="orange">🍊 ส้มล้วน (Orange)</option>
+          <option value="darkblue">🔷 น้ำเงินเข้ม (Dark Blue)</option>
+          <option value="pink">💗 ชมพู (Pink)</option>
+          <option value="darkgreen">🌲 เขียวเข้ม (Dark green)</option>
+          <option value="navy-blue">⚓ กรมท่า (Navy Blue)</option>
+          <option value="Red">🔴 แดง (Red)</option>
+        </select>
+      </div>
+
+      <!-- OBS Studio -->
+      <div class="control-group">
+        <span class="group-title">📡 OBS Studio</span>
+        <div class="group-row">
+          <button class="btn-icon-ctrl" onclick="toggleOBSMode()">👁 โหมด OBS</button>
+          <button class="btn-icon-ctrl secondary" onclick="copyDataUrl()">🔗 คัดลอก URL</button>
+        </div>
+      </div>
+
+      <!-- ล้างข้อมูล -->
+      <div class="control-group danger-group">
+        <span class="group-title danger-text">⚠ ล้างข้อมูล</span>
+        <button class="btn-icon-ctrl danger" onclick="resetAll()">รีเซ็ตทั้งหมด</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Modal ปรับอัตราสุ่ม -->
+<div class="modal-overlay" id="rateModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">⚙ อัตราการสุ่มแบบเสถียรสูง (Super Stable Random)</div>
+      <button class="btn-icon-ctrl" onclick="closeRateModal()">✕</button>
     </div>
 
-    <!-- JavaScript Link -->
-    <script src="js/script.js"></script>
+    <div id="modalStatusBadge" class="modal-status-badge default-mode">
+      📉 กฎลดโอกาสซ้ำแบบรุนแรง (ออก 1 ครั้ง เหลือ 15%, ออก 2 ครั้ง เหลือ 2.25%)
+    </div>
+    
+    <div id="rateSlidersContainer"></div>
+
+    <div class="modal-footer">
+      <button class="btn-icon-ctrl" onclick="resetRatesToEqual()">รีเซ็ตให้เท่ากัน</button>
+      <button class="btn-action-spin rate-save-btn" onclick="closeRateModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
 </body>
 </html>
