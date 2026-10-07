@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Free Fire Random MAP</title>
  <link rel="icon" type="image/webp" href="PG/LOGO-S1.webp">
+<script>
+  if (new URLSearchParams(window.location.search).get("obs") === "1") {
+    document.documentElement.classList.add("obs-mode");
+  }
+</script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <link rel="stylesheet" href="css/styles.css">

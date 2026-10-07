@@ -395,9 +395,20 @@ html, body {
 .rate-save-btn { font-size: 13px !important; padding: 5px 16px !important; width: auto !important; }
 
 /* ---------------- OBS OVERLAY MODE (โปร่งใส 100%) ---------------- */
-html.obs-mode, body.obs-mode, body.obs-mode #app {
+html.obs-mode,
+html.obs-mode body,
+body.obs-mode,
+body.obs-mode #app,
+body.obs-mode .grid-wrapper {
   background: transparent !important;
+  background-color: transparent !important;
+  overflow: hidden !important;
 }
+
+body.obs-mode ::-webkit-scrollbar {
+  display: none !important;
+}
+
 body.obs-mode #app {
   justify-content: center !important;
   padding: 0 !important;
