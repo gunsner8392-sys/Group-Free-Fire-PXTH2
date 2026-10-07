@@ -69,8 +69,13 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* พื้นหลังปกติเป็นสีดำเข้ม */
-html, body {
+/* โหมดตัวอย่าง/ปกติ: มีแผงควบคุม ใส่พื้นหลังสีดำเข้ม */
+html {
+  width: 100vw; height: 100vh; overflow: hidden;
+  background: transparent;
+}
+
+body {
   width: 100vw; height: 100vh; overflow: hidden;
   background: #0a0a0e;
   font-family: 'Kanit', sans-serif; color: #ffffff;
@@ -395,35 +400,17 @@ html, body {
 .rate-save-btn { font-size: 13px !important; padding: 5px 16px !important; width: auto !important; }
 
 /* ---------------- OBS OVERLAY MODE (โปร่งใส 100%) ---------------- */
-html.obs-mode,
-html.obs-mode body,
-body.obs-mode,
-body.obs-mode #app,
-body.obs-mode .grid-wrapper,
-body.obs-mode .grid-container {
+body.obs-mode, body.obs-mode #app {
   background: transparent !important;
-  background-color: transparent !important;
 }
-
-html.obs-mode,
-body.obs-mode {
-  overflow: hidden !important;
-}
-
-body.obs-mode ::-webkit-scrollbar {
-  display: none !important;
-}
-
 body.obs-mode #app {
   justify-content: center !important;
   padding: 0 !important;
 }
-
 body.obs-mode .grid-wrapper {
   max-height: 100vh !important;
   height: 100% !important;
 }
-
 body.obs-mode .side-panel { display: none !important; }
 body.obs-mode .card-reset-btn { display: none !important; }
 body.obs-mode .modal-overlay { display: none !important; }
