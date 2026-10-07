@@ -399,9 +399,14 @@ html.obs-mode,
 html.obs-mode body,
 body.obs-mode,
 body.obs-mode #app,
-body.obs-mode .grid-wrapper {
+body.obs-mode .grid-wrapper,
+body.obs-mode .grid-container {
   background: transparent !important;
   background-color: transparent !important;
+}
+
+html.obs-mode,
+body.obs-mode {
   overflow: hidden !important;
 }
 
@@ -413,10 +418,12 @@ body.obs-mode #app {
   justify-content: center !important;
   padding: 0 !important;
 }
+
 body.obs-mode .grid-wrapper {
   max-height: 100vh !important;
   height: 100% !important;
 }
+
 body.obs-mode .side-panel { display: none !important; }
 body.obs-mode .card-reset-btn { display: none !important; }
 body.obs-mode .modal-overlay { display: none !important; }
