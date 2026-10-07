@@ -69,12 +69,14 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* โหมดตัวอย่าง/ปกติ: มีแผงควบคุม ใส่พื้นหลังสีดำเข้ม */
+/* บังคับ html โปร่งใสเสมอเพื่อไม่ให้เบราว์เซอร์ OBS ดึงสีพื้นหลังตั้งต้นมาใช้ */
 html {
   width: 100vw; height: 100vh; overflow: hidden;
-  background: transparent;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
+/* โหมดปกติ (มีแผงควบคุม): พื้นหลังสีดำเข้ม */
 body {
   width: 100vw; height: 100vh; overflow: hidden;
   background: #0a0a0e;
@@ -400,8 +402,12 @@ body {
 .rate-save-btn { font-size: 13px !important; padding: 5px 16px !important; width: auto !important; }
 
 /* ---------------- OBS OVERLAY MODE (โปร่งใส 100%) ---------------- */
-body.obs-mode, body.obs-mode #app {
+body.obs-mode,
+body.obs-mode #app,
+body.obs-mode .grid-wrapper,
+body.obs-mode .grid-container {
   background: transparent !important;
+  background-color: transparent !important;
 }
 body.obs-mode #app {
   justify-content: center !important;
